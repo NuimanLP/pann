@@ -368,6 +368,7 @@ export interface ApiEntryEntry extends Schema.CollectionType {
     singularName: 'entry';
     pluralName: 'entries';
     displayName: 'Entry';
+    description: '';
   };
   options: {
     draftAndPublish: false;
