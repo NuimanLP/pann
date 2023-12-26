@@ -1,51 +1,55 @@
-// SimpleLoginForm.js
 import React, { useState } from 'react';
-import { Form, Button } from 'react-bootstrap';
+import { Form, Button, Alert } from 'react-bootstrap';
 import axios from 'axios';
 import axiosConfig from './axios-interceptor';
 import { useNavigate } from 'react-router-dom';
 
 const LoginForm = () => {
-    const navigate = useNavigate()
-    const [username, setUsername] = useState('suthon');
-    const [password, setPassword] = useState('123456');
-    const [submitEnabled, setSubmitEnabled] = useState(true);
+    const navigate = useNavigate();
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [errMsg, setErrMsg] = useState(null);
 
-    const handleUsernameChange = (e) => {
-        setUsername(e.target.value);
-    };
-
-    const handlePasswordChange = (e) => {
-        setPassword(e.target.value);
-    };
+    const handleUsernameChange = (e) => setUsername(e.target.value);
+    const handlePasswordChange = (e) => setPassword(e.target.value);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setSubmitEnabled(false);
+        setIsLoading(true);
+        setErrMsg(null);
 
         try {
-            let result = await axios.post('http://localhost:1337/api/auth/local', {
+            const response = await axios.post('http://localhost:1337/api/auth/local', {
                 identifier: username,
                 password: password
-            })
-            axiosConfig.jwt = result.data.jwt
+            });
+            
+            // Store the JWT token
+            const token = response.data.jwt;
+            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
-            result = await axios.get('http://localhost:1337/api/users/me?populate=role')
-            if(result.data.role){
-                if(result.data.role.name == 'Student'){
-                    navigate('/student');
-                }
+            const userResponse = await axios.get('http://localhost:1337/api/users/me?populate=role');
+            if (userResponse.data.role.name === 'Student') {
+                navigate('/student');
+            }else if (userResponse.data.role.name === 'Staff') { 
+                navigate('/staff'); 
             }
-            console.log(result)
-        } catch (e) {
-            console.log(e)
-            console.log('wrong username & password')
-            setSubmitEnabled(true);
+        } catch (error) {
+            console.error(error);
+            setErrMsg('Wrong username or password');
+        } finally {
+            setIsLoading(false);
         }
     };
 
     return (
         <Form onSubmit={handleSubmit}>
+            {errMsg && (
+                <Form.Group>
+                    <Alert variant="danger">{errMsg}</Alert>
+                </Form.Group>
+            )}
             <Form.Group controlId="formBasicUsername">
                 <Form.Label>Username</Form.Label>
                 <Form.Control
@@ -68,8 +72,8 @@ const LoginForm = () => {
                 />
             </Form.Group>
 
-            <Button variant="primary" type="submit" disabled={!submitEnabled}>
-                Submit
+            <Button variant="primary" type="submit" disabled={isLoading}>
+                {isLoading ? 'Loading...' : 'Submit'}
             </Button>
         </Form>
     );
