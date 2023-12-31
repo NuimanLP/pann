@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Form, Button, Alert } from 'react-bootstrap';
+import { Form, Button, Alert, Container } from 'react-bootstrap';
 import axios from 'axios';
-import axiosConfig from './axios-interceptor';
+import axiosConfig from './axios-interceptor'; // Import axiosConfig
 import { useNavigate } from 'react-router-dom';
+import './LoginForm.css'; 
 
 const LoginForm = () => {
     const navigate = useNavigate();
@@ -18,21 +19,29 @@ const LoginForm = () => {
         e.preventDefault();
         setIsLoading(true);
         setErrMsg(null);
+        console.log('Form submitted:', { username, password });
 
         try {
+
+            console.log('Sending login request...');
             const response = await axios.post('http://localhost:1337/api/auth/local', {
                 identifier: username,
                 password: password
             });
-            
-            // Store the JWT token
+
+            console.log('Login response:', response); 
+            axiosConfig.jwt = response.data.jwt; //store token
+
             const token = response.data.jwt;
             axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
+            console.log('Fetching user details...');
             const userResponse = await axios.get('http://localhost:1337/api/users/me?populate=role');
+            console.log('User response:', userResponse);
+
             if (userResponse.data.role.name === 'Student') {
                 navigate('/student');
-            }else if (userResponse.data.role.name === 'Staff') { 
+            } else if (userResponse.data.role.name === 'Staff') { 
                 navigate('/staff'); 
             }
         } catch (error) {
@@ -44,38 +53,39 @@ const LoginForm = () => {
     };
 
     return (
-        <Form onSubmit={handleSubmit}>
-            {errMsg && (
-                <Form.Group>
+        <Container className="d-flex flex-column align-items-center justify-content-center login-container"> {/* link login conatainer form css */}
+            <img src="/psu-passport.png" alt="PSU Passport" className="login-logo mb-4" /> {/*link from CSS*/}
+            <Form onSubmit={handleSubmit} className="w-100" style={{ maxWidth: '320px' }}>
+                {errMsg && (
                     <Alert variant="danger">{errMsg}</Alert>
+                )}
+                <Form.Group controlId="formBasicUsername">
+                    <Form.Label>Username</Form.Label>
+                    <Form.Control
+                        type="text"
+                        placeholder="Enter username"
+                        value={username}
+                        onChange={handleUsernameChange}
+                        required
+                    />
                 </Form.Group>
-            )}
-            <Form.Group controlId="formBasicUsername">
-                <Form.Label>Username</Form.Label>
-                <Form.Control
-                    type="text"
-                    placeholder="Enter username"
-                    value={username}
-                    onChange={handleUsernameChange}
-                    required
-                />
-            </Form.Group>
 
-            <Form.Group controlId="formBasicPassword">
-                <Form.Label>Password</Form.Label>
-                <Form.Control
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={handlePasswordChange}
-                    required
-                />
-            </Form.Group>
+                <Form.Group controlId="formBasicPassword">
+                    <Form.Label>Password</Form.Label>
+                    <Form.Control
+                        type="password"
+                        placeholder="Password"
+                        value={password}
+                        onChange={handlePasswordChange}
+                        required
+                    />
+                </Form.Group>
 
-            <Button variant="primary" type="submit" disabled={isLoading}>
-                {isLoading ? 'Loading...' : 'Submit'}
-            </Button>
-        </Form>
+                <Button variant="primary" size="sm" type="submit" disabled={isLoading}>
+                    {isLoading ? 'Loading...' : 'Login'} {/* text display  */}
+                </Button>
+            </Form>
+        </Container>
     );
 };
 

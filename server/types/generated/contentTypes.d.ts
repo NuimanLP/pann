@@ -410,12 +410,13 @@ export interface ApiEventEvent extends Schema.CollectionType {
     singularName: 'event';
     pluralName: 'events';
     displayName: 'Event';
+    description: '';
   };
   options: {
     draftAndPublish: false;
   };
   attributes: {
-    Name: Attribute.String;
+    name: Attribute.String;
     dateTime: Attribute.DateTime;
     owner: Attribute.Relation<
       'api::event.event',
@@ -427,6 +428,7 @@ export interface ApiEventEvent extends Schema.CollectionType {
       'oneToMany',
       'api::entry.entry'
     >;
+    description: Attribute.Text;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<

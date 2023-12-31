@@ -1,0 +1,23 @@
+
+
+.login-container{
+    min-height: 90vh; /* height of the viewport */
+    padding: 1rem; /* Padding */
+    box-sizing: border-box;
+}
+
+.login-logo {
+    max-width: 100%; 
+    height: auto; 
+}
+
+.form-group {
+    margin-bottom: 2rem;
+}
+
+/* Media query*/
+@media (min-width: 768px) {
+    .login-container {
+        padding: 1rem;
+    }
+}

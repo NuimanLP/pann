@@ -4,14 +4,15 @@
   "info": {
     "singularName": "event",
     "pluralName": "events",
-    "displayName": "Event"
+    "displayName": "Event",
+    "description": ""
   },
   "options": {
     "draftAndPublish": false
   },
   "pluginOptions": {},
   "attributes": {
-    "Name": {
+    "name": {
       "type": "string"
     },
     "dateTime": {
@@ -28,6 +29,9 @@
       "relation": "oneToMany",
       "target": "api::entry.entry",
       "mappedBy": "event"
+    },
+    "description": {
+      "type": "text"
     }
   }
 }

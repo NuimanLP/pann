@@ -67,34 +67,32 @@ module.exports = createCoreController('api::event.event', ({ strapi }) => ({
     },
 
     async listStudentRelated(ctx) {
-        const sanitizedQueryParams = await this.sanitizeQuery(ctx);
-        if(!sanitizedQueryParams.filters){
-            sanitizedQueryParams.filters = {}
-        }
-        sanitizedQueryParams.filters['entries'] = {
-            owner: ctx.state.user.id
-        }
-
-        const { results, pagination } = await strapi.service('api::event.event').find(sanitizedQueryParams);
-        const sanitizedResults = await this.sanitizeOutput(results, ctx);
-
-        // @ts-ignore
-        for(const event of sanitizedResults){
-            const {results} = await strapi.service('api::entry.entry').find({
-                filters: {
-                    event: event['id'],
-                    owner: ctx.state.user.id,
+        try {
+            const sanitizedQueryParams = await this.sanitizeQuery(ctx);
+            sanitizedQueryParams.filters = sanitizedQueryParams.filters || {};
+            sanitizedQueryParams.filters['owner'] = ctx.state.user.id;
+    
+            const { results, pagination } = await strapi.service('api::event.event').find(sanitizedQueryParams);
+            const sanitizedResults = await this.sanitizeOutput(results, ctx);
+    
+            if (Array.isArray(sanitizedResults)) {
+                for (const event of sanitizedResults) {
+                    const entries = await strapi.service('api::entry.entry').find({
+                        filters: {
+                            event: event.id,
+                            owner: ctx.state.user.id,
+                        }
+                    });
+                    event.entries = entries.results;
                 }
-            })
-            if(results.length > 0){
-                event['entry'] = results[0]
             }
+    
+            return this.transformResponse(sanitizedResults, { pagination });
+        } catch (err) {
+            ctx.throw(500, 'Internal server error');
         }
-
-        console.log(sanitizedResults)
-
-        return this.transformResponse(sanitizedResults, { pagination });
-    },
+    }
+    ,
 
 })
 );
