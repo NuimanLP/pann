@@ -69,31 +69,29 @@ module.exports = createCoreController('api::event.event', ({ strapi }) => ({
     async listStudentRelated(ctx) {
         try {
             const sanitizedQueryParams = await this.sanitizeQuery(ctx);
-            sanitizedQueryParams.filters = sanitizedQueryParams.filters || {};
-            sanitizedQueryParams.filters['owner'] = ctx.state.user.id;
-    
-            const { results, pagination } = await strapi.service('api::event.event').find(sanitizedQueryParams);
-            const sanitizedResults = await this.sanitizeOutput(results, ctx);
-    
-            if (Array.isArray(sanitizedResults)) {
-                for (const event of sanitizedResults) {
+            
+            // Fetch all events without filtering by owner
+            const { results: events, pagination } = await strapi.service('api::event.event').find(sanitizedQueryParams);
+            const sanitizedEvents = await this.sanitizeOutput(events, ctx);
+
+            // For each event, fetch entries related to the current user
+            if (Array.isArray(sanitizedEvents)) {
+                for (const event of sanitizedEvents) {
                     const entries = await strapi.service('api::entry.entry').find({
                         filters: {
                             event: event.id,
-                            owner: ctx.state.user.id,
+                            owner: ctx.state.user.id,// Fetch only entries owned by the current user
                         }
                     });
-                    event.entries = entries.results;
+                    event.entries = entries.results;// Attach the relevant entries to the event
                 }
             }
-    
-            return this.transformResponse(sanitizedResults, { pagination });
+
+            return this.transformResponse(sanitizedEvents, { pagination });
         } catch (err) {
             ctx.throw(500, 'Internal server error');
         }
-    }
-    ,
-
+    },
 })
 );
 
