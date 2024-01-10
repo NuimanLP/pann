@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Button } from 'react-bootstrap';
 import axiosConfig from './axios-interceptor';
+import './StaffPage.css';
+
 
 const StaffPage = () => {
   const [events, setEvents] = useState([]);
@@ -83,10 +85,14 @@ const StaffPage = () => {
         {events.length > 0 ? (
           events.map((event, index) => (
             <div key={index} className="event">
-              <h3>{event.attributes.name}</h3>
-              <p>{event.attributes.description}</p>
-              <Button onClick={() => updateEvent(event.id)}>Edit</Button>
-              <Button onClick={() => deleteEvent(event.id)}>Delete</Button>
+              <div className="event-details">
+                <h3>{event.attributes.name}</h3>
+                <p>{event.attributes.description}</p>
+              </div>
+              <div className="event-actions">
+                <Button onClick={() => updateEvent(event.id)}>Edit</Button>
+                <Button onClick={() => deleteEvent(event.id)}>Delete</Button>
+              </div>
             </div>
           ))
         ) : (
