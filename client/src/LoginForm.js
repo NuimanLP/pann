@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Form, Button, Alert, Container } from 'react-bootstrap';
+import { Form, Button, Alert, Container, Spinner } from 'react-bootstrap';
 import axios from 'axios';
 import axiosConfig from './axios-interceptor'; // Import axiosConfig
 import { useNavigate } from 'react-router-dom';
-import './LoginForm.css'; 
+import './LoginForm.css';
 
 const LoginForm = () => {
     const navigate = useNavigate();
@@ -29,7 +29,7 @@ const LoginForm = () => {
                 password: password
             });
 
-            console.log('Login response:', response); 
+            console.log('Login response:', response);
             axiosConfig.jwt = response.data.jwt; //store token
 
             const token = response.data.jwt;
@@ -41,8 +41,8 @@ const LoginForm = () => {
 
             if (userResponse.data.role.name === 'Student') {
                 navigate('/student');
-            } else if (userResponse.data.role.name === 'Staff') { 
-                navigate('/staff'); 
+            } else if (userResponse.data.role.name === 'Staff') {
+                navigate('/staff');
             }
         } catch (error) {
             console.error(error);
@@ -80,10 +80,15 @@ const LoginForm = () => {
                         required
                     />
                 </Form.Group>
-
                 <Button variant="primary" size="sm" type="submit" disabled={isLoading}>
-                    {isLoading ? 'Loading...' : 'Login'} {/* text display  */}
+                    {isLoading ? 'Loading...' : 'Login'} {/* text display */}
+                    {isLoading && (
+                        <Spinner animation="border" role="status">
+                            <span className="visually-hidden">Loading...</span>
+                        </Spinner>
+                    )}
                 </Button>
+
             </Form>
         </Container>
     );
