@@ -1,18 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './StudentPage.css';
+import axiosConfig from './axios-interceptor'; // Import axiosConfig for authorization
 
 const StudentPage = () => {
   const [events, setEvents] = useState([]);
   const [error, setError] = useState('');
-  
+
   // Initialize state from localStorage if it exists or set default empty object
   const [viewedEvents, setViewedEvents] = useState(JSON.parse(localStorage.getItem('viewedEvents')) || {});
   const [submittedEvents, setSubmittedEvents] = useState(JSON.parse(localStorage.getItem('submittedEvents')) || {});
 
   useEffect(() => {
-    axios.get('http://localhost:1337/api/events/studentRelated')
+    axios.get('http://localhost:1337/api/events/studentRelated', {
+      headers: {
+        Authorization: `Bearer ${axiosConfig.jwt}`, // Authorization header
+      },
+    })
       .then(response => {
+        // Sort the events by date in descending order
         const sortedEvents = response.data.data.sort((a, b) =>
           new Date(b.attributes.dateTime) - new Date(a.attributes.dateTime)
         );
@@ -25,12 +31,10 @@ const StudentPage = () => {
   }, []);
 
   useEffect(() => {
-    // Update localStorage when viewedEvents changes
     localStorage.setItem('viewedEvents', JSON.stringify(viewedEvents));
   }, [viewedEvents]);
 
   useEffect(() => {
-    // Update localStorage when submittedEvents changes
     localStorage.setItem('submittedEvents', JSON.stringify(submittedEvents));
   }, [submittedEvents]);
 
@@ -40,9 +44,18 @@ const StudentPage = () => {
     }, 3000); // Mark as viewed after 3 seconds
   };
 
-  const handleSubmit = (id) => {
-    setSubmittedEvents(prevState => ({ ...prevState, [id]: true }));
-    // Implement the submission logic here
+  const handleSubmit = async (id) => {
+    try {
+      // Example POST request to submit an event
+      await axios.post(`http://localhost:1337/api/events/submit/${id}`, {}, {
+        headers: {
+          Authorization: `Bearer ${axiosConfig.jwt}`, // Authorization header
+        },
+      });
+      setSubmittedEvents(prevState => ({ ...prevState, [id]: true }));
+    } catch (error) {
+      console.error('Error submitting event:', error);
+    }
   };
 
   return (
