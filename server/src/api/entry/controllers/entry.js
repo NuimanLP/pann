@@ -12,7 +12,6 @@ const app = express();
 app.use(express.json());
 
 
-// Define a type for the request body which is an array of score entries
 
 module.exports = createCoreController('api::entry.entry', ({ strapi }) => ({
 

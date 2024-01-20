@@ -38,10 +38,9 @@ const StaffPage = () => {
         },
       });
       console.log("Full Response", response);
-      setEventId(response.data.id); // Adjusted to match the response structure
+      setEventId(response.data.id); 
       console.log('Event created:', response.data);
 
-      // Check if the response has the expected structure and contains the event ID
       if (response.data && response.data.data && response.data.data.id) {
         setEventId(response.data.data.id); // Update the eventId state
         console.log('Event created:', response.data);
