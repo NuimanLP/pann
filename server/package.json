@@ -9,13 +9,14 @@
     "build": "strapi build",
     "strapi": "strapi"
   },
-  "devDependencies": {},
   "dependencies": {
-    "@strapi/strapi": "4.15.5",
-    "@strapi/plugin-users-permissions": "4.15.5",
-    "@strapi/plugin-i18n": "4.15.5",
     "@strapi/plugin-cloud": "4.15.5",
+    "@strapi/plugin-i18n": "4.15.5",
+    "@strapi/plugin-users-permissions": "4.15.5",
+    "@strapi/strapi": "4.15.5",
     "better-sqlite3": "8.6.0",
+    "body-parser": "^1.20.2",
+    "express": "^4.18.2",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "react-router-dom": "5.3.4",
@@ -31,5 +32,11 @@
     "node": ">=18.0.0 <=20.x.x",
     "npm": ">=6.0.0"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "@types/koa": "^2.14.0"
+  },
+  "bundleDependencies": [
+    "body-parser"
+  ]
 }

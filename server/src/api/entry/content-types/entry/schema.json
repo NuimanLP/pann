@@ -21,7 +21,7 @@
       "target": "plugin::users-permissions.user",
       "inversedBy": "entries"
     },
-    "seen_dateTime": {
+    "seen_DateTime": {
       "type": "datetime"
     },
     "act_DateTime": {

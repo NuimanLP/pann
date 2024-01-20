@@ -92,6 +92,7 @@ module.exports = createCoreController('api::event.event', ({ strapi }) => ({
             ctx.throw(500, 'Internal server error');
         }
     },
+    
 })
 );
 

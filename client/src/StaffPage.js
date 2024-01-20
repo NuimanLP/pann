@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Button ,Form} from 'react-bootstrap';
+import { Button, Form } from 'react-bootstrap';
 import axiosConfig from './axios-interceptor';
 import './StaffPage.css';
 import * as XLSX from 'xlsx';
@@ -8,13 +8,12 @@ import * as XLSX from 'xlsx';
 
 const StaffPage = () => {
   const [events, setEvents] = useState([]);
+  const [eventId, setEventId] = useState(null); //store the created event ID
   const [error, setError] = useState('');
   const [selectedFile, setSelectedFile] = useState(null);
 
   const [eventName, setEventName] = useState('');
   const [eventDescription, setEventDescription] = useState('');
-  const [eventDateTime, setEventDateTime] = useState('');
-
   const apiUrl = 'http://localhost:1337/api/events'; // Strapi API URL
 
 
@@ -25,35 +24,46 @@ const StaffPage = () => {
 
   // Create a new event
   const createEvent = async () => {
-    //Event data
     const eventData = {
       data: {
         name: eventName,
         description: eventDescription,
-        datetime: eventDateTime,
       }
     };
+  
     try {
       const response = await axios.post('http://localhost:1337/api/events', eventData, {
         headers: {
           Authorization: `Bearer ${axiosConfig.jwt}`,
         },
       });
+      console.log("Full Response", response);
+      setEventId(response.data.id); // Adjusted to match the response structure
       console.log('Event created:', response.data);
+
+      // Check if the response has the expected structure and contains the event ID
+      if (response.data && response.data.data && response.data.data.id) {
+        setEventId(response.data.data.id); // Update the eventId state
+        console.log('Event created:', response.data);
+      } else {
+        console.error("Event creation response does not contain an ID");
+      }
     } catch (error) {
       console.error('Error creating event:', error.response || error.message);
     }
   };
+  
 
   // File change
   const handleFileChange = (e) => {
     setSelectedFile(e.target.files[0]);
   };
-
   // Event handler for form submit
-  const handleFileSubmit = (e) => {
+  const handleFileSubmit = async (e) => {
     e.preventDefault();
-    if (selectedFile) {
+    console.log("Selected File:", selectedFile);
+    console.log("Event ID:", eventId);
+    if (selectedFile && eventId) {
       const reader = new FileReader();
       reader.onload = async (e) => {
         const data = e.target.result;
@@ -61,23 +71,28 @@ const StaffPage = () => {
         const sheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];
         const json = XLSX.utils.sheet_to_json(worksheet);
-        console.log(json); // Excel file in JSON format
+        console.log('Excel data:', json);
+
+        const scoresWithEventId = json.map(entry => ({
+          ...entry,
+          eventId: eventId // Attach the event ID to each score entry
+        }));
 
         try {
-          // Send the JSON data to the Strapi endpoint
-          const response = await axios.post('http://localhost:1337/api/entries/upload-scores', json, {
+          const response = await axios.post('http://localhost:1337/api/entries/upload-scores', scoresWithEventId, {
             headers: {
               Authorization: `Bearer ${axiosConfig.jwt}`,
             },
           });
           console.log('Scores uploaded:', response.data);
-          // Fetch events again to refresh the data on the page
-          fetchEvents();
+          fetchEvents(); // Refresh events after uploading scores
         } catch (error) {
           console.error('Error uploading scores:', error.response || error.message);
         }
       };
       reader.readAsArrayBuffer(selectedFile);
+    } else {
+      console.log("Either file is not selected or event ID is not set");
     }
   };
 
