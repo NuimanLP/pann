@@ -44,6 +44,10 @@ const StudentPage = () => {
     }, 3000); // Mark as viewed after 3 seconds
   };
 
+  const handleLogout = () => {
+    window.location.href = 'http://localhost:3000/';
+  };
+  
   const handleSubmit = async (id) => {
     try {
       // Example POST request to submit an event
@@ -86,6 +90,8 @@ const StudentPage = () => {
         ) : (
           <p>No events to display.</p>
         )}
+        <button className="logout-button" onClick={handleLogout}>Logout</button>
+
       </div>
     </div>
   );

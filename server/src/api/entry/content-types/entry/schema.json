@@ -35,6 +35,9 @@
     },
     "rating": {
       "type": "string"
+    },
+    "emotion": {
+      "type": "string"
     }
   }
 }

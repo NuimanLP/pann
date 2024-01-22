@@ -43,3 +43,8 @@
     background-color: #0056b3;
   }
   
+  .logout-button {
+    position: absolute;
+    top: 35px; 
+    right: 25px;
+  }

@@ -1,6 +1,5 @@
 'use strict';
 
-
 const { createCoreController } = require('@strapi/strapi').factories;
 
 module.exports = createCoreController('api::entry.entry', ({ strapi }) => ({
@@ -8,7 +7,7 @@ module.exports = createCoreController('api::entry.entry', ({ strapi }) => ({
 
 
     const scoresData = ctx.request.body;
-    console.log(ctx.state.user);
+    console.log(ctx.state.user.id);
     console.log("Event Is Coming");
     // console.log(scoresData);
 
@@ -21,25 +20,51 @@ module.exports = createCoreController('api::entry.entry', ({ strapi }) => ({
       ctx.badRequest('Invalid score data');
     }
       // const entries = await strapi.entityService.findMany('api::entry.entry', {});
+    
+      let x  ='';
+    for (const scoreEntry of scoresData) {
+      const{event:eventName}= scoreEntry.data;
+      x = eventName;
+      console.log(x);
+    }
+      //Suthon
+      const event_1 = await strapi.entityService.create('api::event.event', {
+        data:{
+          event: x,
+          owner: ctx.state.user
 
+        }
+      })
 
     try {
       // Process each score entry
       for (const scoreEntry of scoresData) {
-        // console.log(scoreEntry);
+        console.log(scoreEntry);
         const { owner: owner_studentid, result: result_entry, event: eventName, rating: rate,emo: emo } = scoreEntry.data;
 
         // Log the destructured scoreEntry
         console.log({ owner_studentid, result_entry, eventName, rate, emo });
+
+        const allUsers = await strapi.entityService.findMany("plugin::users-permissions.user", {
+          fields: ['username'],
+          filters: {},
+          sort: { username: 'asc' }, 
+          populate: {}, 
+        });
+        console.log(allUsers); 
+        const targetname = "นักเรียน_a";
+        const realUser = allUsers.find(user => user.username === targetname);
+        console.log(realUser);
 
         if (true) {
           // Create a new entry with the score
           await strapi.entityService.create('api::entry.entry', {
             populate: '*',
             data: {
-              owner: owner_studentid,
+              // @ts-ignore
+              owner: realUser,
               result: result_entry,
-              event: eventName,
+              event: event_1,
               seen_DateTime: new Date(),
               rating: rate,
               emotion: emo

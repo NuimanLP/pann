@@ -388,6 +388,7 @@ export interface ApiEntryEntry extends Schema.CollectionType {
     >;
     result: Attribute.Integer;
     rating: Attribute.String;
+    emotion: Attribute.String;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
