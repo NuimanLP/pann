@@ -24,14 +24,14 @@
       "target": "plugin::users-permissions.user",
       "inversedBy": "events"
     },
+    "description": {
+      "type": "text"
+    },
     "entries": {
       "type": "relation",
       "relation": "oneToMany",
       "target": "api::entry.entry",
       "mappedBy": "event"
-    },
-    "description": {
-      "type": "text"
     }
   }
 }

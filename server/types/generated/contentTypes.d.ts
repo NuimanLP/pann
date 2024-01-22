@@ -374,7 +374,6 @@ export interface ApiEntryEntry extends Schema.CollectionType {
     draftAndPublish: false;
   };
   attributes: {
-    result: Attribute.String;
     owner: Attribute.Relation<
       'api::entry.entry',
       'manyToOne',
@@ -387,6 +386,8 @@ export interface ApiEntryEntry extends Schema.CollectionType {
       'manyToOne',
       'api::event.event'
     >;
+    result: Attribute.Integer;
+    rating: Attribute.String;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -423,12 +424,12 @@ export interface ApiEventEvent extends Schema.CollectionType {
       'manyToOne',
       'plugin::users-permissions.user'
     >;
+    description: Attribute.Text;
     entries: Attribute.Relation<
       'api::event.event',
       'oneToMany',
       'api::entry.entry'
     >;
-    description: Attribute.Text;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<

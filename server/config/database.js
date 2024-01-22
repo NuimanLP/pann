@@ -78,7 +78,7 @@ module.exports = ({ env }) => {
           env('DATABASE_FILENAME', '.tmp/data.db')
         ),
       },
-      useNullAsDefault: true,debug:true,
+      useNullAsDefault: true,debug:false,
     },
   };
 

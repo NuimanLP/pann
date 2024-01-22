@@ -12,9 +12,6 @@
   },
   "pluginOptions": {},
   "attributes": {
-    "result": {
-      "type": "string"
-    },
     "owner": {
       "type": "relation",
       "relation": "manyToOne",
@@ -32,6 +29,12 @@
       "relation": "manyToOne",
       "target": "api::event.event",
       "inversedBy": "entries"
+    },
+    "result": {
+      "type": "integer"
+    },
+    "rating": {
+      "type": "string"
     }
   }
 }

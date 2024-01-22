@@ -1,66 +1,79 @@
 'use strict';
 
-/**
- * entry controller
- */
 
 const { createCoreController } = require('@strapi/strapi').factories;
-const express = require('express');
-const app = express();
-
-// Body parsing middleware
-app.use(express.json());
-
-
 
 module.exports = createCoreController('api::entry.entry', ({ strapi }) => ({
+  async uploadScores(ctx) {
 
-    // Uploading scores
-async uploadScores(ctx) {
-  const { user } = ctx.state; 
-  if (!user) {
-    return ctx.unauthorized(`You must be logged in.`);
-  }
 
-  // Retrieve scoresData from the request body
-  const scoresData = ctx.request.body;
+    const scoresData = ctx.request.body;
+    console.log(ctx.state.user);
+    console.log("Event Is Coming");
+    // console.log(scoresData);
 
-  if (!scoresData || !Array.isArray(scoresData)) {
-    ctx.throw(400, 'Invalid score data');
-  }
 
-  try {
-    for (const scoreEntry of scoresData) {
-      const { studentId, eventId, score } = scoreEntry;
-
-      if (!studentId || !eventId || score === undefined) {
-        ctx.throw(400, 'Missing studentId, eventId, or score in score entry');
-      }
-
-      // Find the student entry for the event
-      const entries = await strapi.db.query('api::entry.entry').findMany({
-        where: {
-          owner: studentId, 
-          event: eventId,
-        },
-      });
-
-      if (entries.length) {
-        const entry = entries[0];
-        // Update the entry with the new score
-        await strapi.services.entry.update({ id: entry.id }, { result: score });
-      } else {
-        // Handle the case where no entry is found
-      }
+    if (!ctx.state.user) {
+      return ctx.badRequest('User must be authenticated');
     }
+    // Validate the scores data
+    if (!scoresData || !Array.isArray(scoresData)) {
+      ctx.badRequest('Invalid score data');
+    }
+      // const entries = await strapi.entityService.findMany('api::entry.entry', {});
 
-    return ctx.send('Scores uploaded successfully.');
-  } catch (err) {
-    console.error('Upload scores error:', err);
-    ctx.throw(500, 'Cannot process the request. Please try again');
+
+    try {
+      // Process each score entry
+      for (const scoreEntry of scoresData) {
+        // console.log(scoreEntry);
+        const { owner: owner_studentid, result: result_entry, event: eventName, rating: rate,emo: emo } = scoreEntry.data;
+
+        // Log the destructured scoreEntry
+        console.log({ owner_studentid, result_entry, eventName, rate, emo });
+
+        if (true) {
+          // Create a new entry with the score
+          await strapi.entityService.create('api::entry.entry', {
+            populate: '*',
+            data: {
+              owner: owner_studentid,
+              result: result_entry,
+              event: eventName,
+              seen_DateTime: new Date(),
+              rating: rate,
+              emotion: emo
+            },
+          });
+        }
+      }
+
+      // Ensure the user is authenticated
+      // const { user } = ctx.state.user;
+      // Retrieve the scores data from the request body
+
+
+      // // Validate the required fields in each score entry
+      // if (!studentId || !eventId || score === undefined) {
+      //   return ctx.badRequest('Missing studentId, eventId, or score in score entry');
+      // }
+      // if (entries.length) {
+      //   // Update the entry with the new score
+      //   await strapi.entityService.update('api::entry.entry', entries[0].id, {
+      //     data: { result: result_entry },
+      //   });
+      // }
+      // Find the corresponding entry for the student and event
+
+
+
+      // Send a success response
+      ctx.body = { "Hello": 'Scores uploaded successfully.' };
+    } catch (error) {
+      // Log and return an error response
+      strapi.log.error('Upload scores error:', error);
+      return ctx.internalServerError('Cannot process the request. Please try again');
+    }
+    console.log("complete");
   }
-}
-
-      
-
 }));
