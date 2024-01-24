@@ -21,29 +21,35 @@ module.exports = createCoreController('api::entry.entry', ({ strapi }) => ({
     }
       // const entries = await strapi.entityService.findMany('api::entry.entry', {});
     
-      let x  ='';
+      let x  ='';let Y = '';
     for (const scoreEntry of scoresData) {
-      const{event:eventName}= scoreEntry.data;
+      const{owner:Studentowner,event:eventName}= scoreEntry.data;
       x = eventName;
-      console.log(x);
+      Y = Studentowner;
+      console.log("result"+x);
     }
       //Suthon
-      const event_1 = await strapi.entityService.create('api::event.event', {
+      const event_1 = await strapi.entityService.create('api::event.event', {//Go to See Event Cotentype[*Field*] 
         data:{
-          event: x,
+          name: x,//[Field in content type]
           owner: ctx.state.user
 
         }
       })
+      const entry_student_owner = await strapi.entityService.create('api::entry.entry', {//Go to See Event Cotentype[*Field*]
+        data:{
+          owner: Y,//[Field in content type]
+          seen_DateTime: new Date(),
+        }})
 
     try {
       // Process each score entry
       for (const scoreEntry of scoresData) {
         console.log(scoreEntry);
-        const { owner: owner_studentid, result: result_entry, event: eventName, rating: rate,emo: emo } = scoreEntry.data;
+        const {  result: result_entry, rating: rate,emo: emo } = scoreEntry.data;
 
         // Log the destructured scoreEntry
-        console.log({ owner_studentid, result_entry, eventName, rate, emo });
+        console.log({result_entry, rate, emo });
 
         const allUsers = await strapi.entityService.findMany("plugin::users-permissions.user", {
           fields: ['username'],
@@ -62,7 +68,7 @@ module.exports = createCoreController('api::entry.entry', ({ strapi }) => ({
             populate: '*',
             data: {
               // @ts-ignore
-              owner: realUser,
+              owner:entry_student_owner ,
               result: result_entry,
               event: event_1,
               seen_DateTime: new Date(),
