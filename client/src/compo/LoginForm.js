@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Form, Button, Alert, Container, Spinner } from 'react-bootstrap';
 import axios from 'axios';
-import axiosConfig from './axios-interceptor'; // Import axiosConfig
+import axiosConfig from '../axios-interceptor'; // Import axiosConfig
 import { useNavigate } from 'react-router-dom';
-import './LoginForm.css';
+import '../CSS/LoginForm.css';
 
 const LoginForm = () => {
     const navigate = useNavigate();
@@ -63,7 +63,7 @@ const LoginForm = () => {
                     <Form.Label>Username</Form.Label>
                     <Form.Control
                         type="text"
-                        placeholder="Enter username"
+                        placeholder="Enter username ex.66101***@email.psu.ac.th"
                         value={username}
                         onChange={handleUsernameChange}
                         required

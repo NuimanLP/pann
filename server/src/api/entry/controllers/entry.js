@@ -12,35 +12,36 @@ module.exports = createCoreController('api::entry.entry', ({ strapi }) => ({
     // console.log(scoresData);
 
 
-    if (!ctx.state.user) {
-      return ctx.badRequest('User must be authenticated');
-    }
-    // Validate the scores data
-    if (!scoresData || !Array.isArray(scoresData)) {
-      ctx.badRequest('Invalid score data');
-    }
-      // const entries = await strapi.entityService.findMany('api::entry.entry', {});
+    // if (!ctx.state.user) {
+    //   return ctx.badRequest('User must be authenticated');
+    // }
+    // // Validate the scores data
+    // if (!scoresData || !Array.isArray(scoresData)) {
+    //   ctx.badRequest('Invalid score data');
+    // }
+    //   // const entries = await strapi.entityService.findMany('api::entry.entry', {});
     
-      let x  ='';let Y = '';
+      let x  =''; 
+      let score_owner = '';
     for (const scoreEntry of scoresData) {
-      const{owner:Studentowner,event:eventName}= scoreEntry.data;
+      const{event:eventName,owner:studentscore_owner}= scoreEntry.data;
       x = eventName;
-      Y = Studentowner;
+      score_owner= studentscore_owner;
       console.log("result"+x);
     }
       //Suthon
-      const event_1 = await strapi.entityService.create('api::event.event', {//Go to See Event Cotentype[*Field*] 
+      const event_1 = await strapi.entityService.findMany('api::event.event', {//Go to See Event Cotentype[*Field*] 
         data:{
           name: x,//[Field in content type]
           owner: ctx.state.user
 
         }
       })
-      const entry_student_owner = await strapi.entityService.create('api::entry.entry', {//Go to See Event Cotentype[*Field*]
-        data:{
-          owner: Y,//[Field in content type]
-          seen_DateTime: new Date(),
-        }})
+      // const entry_student_owner = await strapi.entityService.create('api::entry.entry', {//Go to See Event Cotentype[*Field*]
+      //   data:{
+      //     owner: Y,//[Field in content type]
+      //     // seen_DateTime: new Date(),
+      //   }})
 
     try {
       // Process each score entry
@@ -68,7 +69,7 @@ module.exports = createCoreController('api::entry.entry', ({ strapi }) => ({
             populate: '*',
             data: {
               // @ts-ignore
-              owner:entry_student_owner ,
+              owner:realUser ,
               result: result_entry,
               event: event_1,
               seen_DateTime: new Date(),

@@ -8,8 +8,8 @@ import {
   createBrowserRouter,
   RouterProvider,
 } from "react-router-dom";
-import StudentPage from './StudentPage';
-import StaffPage from './StaffPage';
+import StudentPage from './compo/StudentPage';
+import StaffPage from './compo/StaffPage';
 
 const router = createBrowserRouter([
   {

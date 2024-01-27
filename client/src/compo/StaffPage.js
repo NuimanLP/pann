@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Button, Form } from 'react-bootstrap';
-import axiosConfig from './axios-interceptor';
-import './StaffPage.css';
+import axiosConfig from '../axios-interceptor';
+import '../CSS/StaffPage.css';
 import * as XLSX from 'xlsx';
 
 const StaffPage = () => {
@@ -79,19 +79,19 @@ const StaffPage = () => {
 
 
         ///**********////// */
-        if (true) {
+        if (reader!==null) {
           // Process the Excel file
           reader.onload = async (e) => {
             console.log('FileReader onload triggered');
             const workbook = XLSX.read(e.target.result, { type: 'array' });
             const json = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
-            console.log('JSON:', json);
+            // console.log('JSON:', json);
             // Transform data to match the required structure
             const transformedData = json.map(entry => ({
               data: {
                 owner: entry.studentId,
                 result: entry.score,
-                event: eventName,
+                // event: eventName,--> Errorr this make me create the event name 2 times
                 rating: entry.rate,
                 emo: entry.emo,
               }
