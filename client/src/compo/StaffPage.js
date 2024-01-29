@@ -12,6 +12,9 @@ const StaffPage = () => {
   const [eventName, setEventName] = useState('');
   const [eventDescription, setEventDescription] = useState('');
   const apiUrl = 'http://localhost:1337/api/events';
+  const [editEventId, setEditEventId] = useState(null);
+  const [newEventName, setNewEventName] = useState('');
+
 
   useEffect(() => {
     fetchEvents();
@@ -49,17 +52,30 @@ const StaffPage = () => {
     }
   };
 
+  const showEditForm = (event) => {
+    setEditEventId(event.id);
+    setNewEventName(event.attributes.name);
+  };
+
   // Update an event
-  const updateEvent = async (eventId, updatedData) => {
+  const updateEvent = async () => {
+    if (!newEventName.trim()) {
+      setError('Event name cannot be empty.');
+      return;
+    }
+
     try {
-      await axios.put(`${apiUrl}/${eventId}`, { data: updatedData }, {
+      await axios.put(`${apiUrl}/${editEventId}`, { data: { name: newEventName, description: eventDescription } }, {
         headers: { Authorization: `Bearer ${axiosConfig.jwt}` },
       });
       fetchEvents();
+      setEditEventId(null); // Reset edit state
     } catch (error) {
       setError('Error updating event. Please try again.');
     }
   };
+
+
 
 
   // Upload scores and create event
@@ -79,7 +95,7 @@ const StaffPage = () => {
 
 
         ///**********////// */
-        if (reader!==null) {
+        if (reader !== null) {
           // Process the Excel file
           reader.onload = async (e) => {
             console.log('FileReader onload triggered');
@@ -91,7 +107,8 @@ const StaffPage = () => {
               data: {
                 owner: entry.studentId,
                 result: entry.score,
-                // event: eventName,--> Errorr this make me create the event name 2 times
+                event: eventName,
+                // --> Errorr this make me create the event name 2 times
                 rating: entry.rate,
                 emo: entry.emo,
               }
@@ -143,6 +160,7 @@ const StaffPage = () => {
         <Button variant="primary" onClick={handleCreateAndUpload}>Create Event and Upload Scores</Button>
       </Form>
 
+
       {/* Display of Events */}
       <div>
         <h2>Events</h2>
@@ -154,7 +172,7 @@ const StaffPage = () => {
                 <p>{event.attributes.description}</p>
               </div>
               <div className="event-actions">
-                <Button onClick={() => updateEvent(event.id, { name: event.attributes.name, description: event.attributes.description })}>Edit</Button>
+                <Button onClick={() => showEditForm(event)}>Edit</Button>
                 <Button variant="danger" onClick={() => deleteEvent(event.id)}>Delete</Button>
               </div>
             </div>
@@ -163,10 +181,19 @@ const StaffPage = () => {
           <p>No events to display.</p>
         )}
         <button className="logout-button" onClick={handleLogout}>Logout</button>
-
       </div>
+
+      {/* Popup Edit Form */}
+      {editEventId && (
+        <div className="edit-popup">
+          <input type="text" value={newEventName} onChange={(e) => setNewEventName(e.target.value)} />
+          <button onClick={updateEvent}>Save Changes</button>
+          <button onClick={() => setEditEventId(null)}>Cancel</button>
+        </div>
+      )}
     </div>
   );
 };
+
 
 export default StaffPage;

@@ -48,7 +48,7 @@ module.exports = createCoreController('api::event.event', ({ strapi }) => ({
         return await super.update(ctx);
     },
 
-    async postEntries(ctx) {
+    async postEvent(ctx) {
         const entityId = ctx.params.id;
         try {
             ctx.body = { ok: 1 };

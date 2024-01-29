@@ -4,8 +4,8 @@ module.exports = {
     routes: [ //custom routes
         {
             method: 'POST',
-            path: '/events/entries',
-            handler: 'event.postEntries'
+            path: '/events/postEvent',
+            handler: 'event.postEvent'
         },
         {
             method: 'GET',
@@ -17,6 +17,7 @@ module.exports = {
             path: '/events/studentRelated',
             handler: 'event.listStudentRelated'
         }
+
     ]
 }
 
