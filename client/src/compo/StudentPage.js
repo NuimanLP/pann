@@ -5,10 +5,11 @@ import axiosConfig from '../axios-interceptor'; // Import axiosConfig for author
 
 const StudentPage = () => {
   const [events, setEvents] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [error, setError] = useState('');
 
   // Initialize state from localStorage if it exists or set default empty object
-  const [viewedEvents, setViewedEvents] = useState(JSON.parse(localStorage.getItem('viewedEvents')) || {});
+  const [viewedEvents, setViewedEvents] = useState(JSON.parse(sessionStorage.getItem('viewedEvents')) || {});
   const [submittedEvents, setSubmittedEvents] = useState(JSON.parse(localStorage.getItem('submittedEvents')) || {});
 
   useEffect(() => {
@@ -31,11 +32,11 @@ const StudentPage = () => {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('viewedEvents', JSON.stringify(viewedEvents));
+    sessionStorage.setItem('viewedEvents', JSON.stringify(viewedEvents));
   }, [viewedEvents]);
 
   useEffect(() => {
-    localStorage.setItem('submittedEvents', JSON.stringify(submittedEvents));
+    sessionStorage.setItem('submittedEvents', JSON.stringify(submittedEvents));
   }, [submittedEvents]);
 
   const handleView = (id) => {
@@ -47,7 +48,7 @@ const StudentPage = () => {
   const handleLogout = () => {
     window.location.href = 'http://localhost:3000/';
   };
-  
+
   const handleSubmit = async (id) => {
     try {
       // Example POST request to submit an event
@@ -61,15 +62,31 @@ const StudentPage = () => {
       console.error('Error submitting event:', error);
     }
   };
+  // Filter events based on search term
+  const filteredEvents = searchTerm
+    ? events.filter(event =>
+      event.attributes.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      event.attributes.description.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    : events;
+
+
 
   return (
     <div className="student-page">
       <h1>Welcome to the Student Page</h1>
+      <input
+        type="text"
+        placeholder="Search events..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="search-bar"
+      />
       {error && <p className="error-message">{error}</p>}
       <div>
         <h2>Events</h2>
-        {events.length > 0 ? (
-          events.map((event, index) => (
+        {filteredEvents.length > 0 ? (
+          filteredEvents.map((event, index) => (
             <div key={index} className="event">
               <h3>{event.attributes.name}</h3>
               <p>{event.attributes.description}</p>
@@ -91,10 +108,10 @@ const StudentPage = () => {
           <p>No events to display.</p>
         )}
         <button className="logout-button" onClick={handleLogout}>Logout</button>
-
       </div>
     </div>
   );
 };
+
 
 export default StudentPage;
