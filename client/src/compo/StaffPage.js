@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Button, Form } from 'react-bootstrap';
-import axiosConfig from '../axios-interceptor';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../CSS/StaffPage.css';
 import * as XLSX from 'xlsx';
@@ -20,6 +19,14 @@ const StaffPage = () => {
   const [showModal, setShowModal] = useState(false);
   const [entryData, setEntryData] = useState([]);
 
+  // Retrieve JWT, user, and role from session storage
+  const jwt = sessionStorage.getItem('jwt');
+  // const usersession = sessionStorage.getItem('user');
+  // const role = sessionStorage.getItem('role');
+
+  axios.defaults.headers.common['Authorization'] = `Bearer ${jwt}`;
+
+
 
 
   // Show Entries Modal
@@ -27,7 +34,7 @@ const StaffPage = () => {
     try {
       const response = await axios.get(`http://localhost:1337/api/entries?populate=*`, {
         headers: {
-          Authorization: `Bearer ${axiosConfig.jwt}`,
+          Authorization: `Bearer ${jwt}`,
         },
       });
       setEntryData(response.data.data);
@@ -66,7 +73,7 @@ const StaffPage = () => {
   const fetchEvents = () => {
     axios.get(`${apiUrl}`, {
       headers: {
-        Authorization: `Bearer ${axiosConfig.jwt}`,
+        Authorization: `Bearer ${jwt}`,
       },
     })
       .then(response => {
@@ -82,7 +89,7 @@ const StaffPage = () => {
   const deleteEvent = async (eventId) => {
     try {
       await axios.delete(`${apiUrl}/${eventId}`, {
-        headers: { Authorization: `Bearer ${axiosConfig.jwt}` },
+        headers: { Authorization: `Bearer ${jwt}` },
       });
       fetchEvents();
     } catch (error) {
@@ -106,7 +113,7 @@ const StaffPage = () => {
 
     try {
       await axios.put(`${apiUrl}/${editEventId}`, { data: { name: newEventName } }, {
-        headers: { Authorization: `Bearer ${axiosConfig.jwt}` },
+        headers: { Authorization: `Bearer ${jwt}` },
       });
       fetchEvents();
       setEditEventId(null); // Reset edit state
@@ -128,7 +135,7 @@ const StaffPage = () => {
         // Create a new event first
         const eventData = { data: { name: eventName, description: eventDescription, dateTime: new Date() } };
         const createResponse = await axios.post('http://localhost:1337/api/events', eventData, {
-          headers: { Authorization: `Bearer ${axiosConfig.jwt}` }
+          headers: { Authorization: `Bearer ${jwt}` }
         });
         console.log('Create response:', createResponse)
         const reader = new FileReader();
@@ -157,7 +164,7 @@ const StaffPage = () => {
 
             // Upload the transformed data
             const uploadResponse = await axios.post('http://localhost:1337/api/entries/upload-scores', transformedData, {
-              headers: { Authorization: `Bearer ${axiosConfig.jwt}` }
+              headers: { Authorization: `Bearer ${jwt}` }
             });
 
             console.log('Upload response:', uploadResponse);
