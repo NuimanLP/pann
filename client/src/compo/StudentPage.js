@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import '../CSS/StudentPage.css';
-import axiosConfig from '../axios-interceptor'; // Import axiosConfig for authorization
 
 const StudentPage = () => {
   const [events, setEvents] = useState([]);
