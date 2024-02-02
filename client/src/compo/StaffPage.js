@@ -2,18 +2,56 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Button, Form } from 'react-bootstrap';
 import axiosConfig from '../axios-interceptor';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import '../CSS/StaffPage.css';
 import * as XLSX from 'xlsx';
 
 const StaffPage = () => {
-  const [events, setEvents] = useState([]);
+  const [events, setEvents] = useState([]);//Create Event
   const [error, setError] = useState('');
   const [selectedFile, setSelectedFile] = useState(null);
-  const [eventName, setEventName] = useState('');
-  const [eventDescription, setEventDescription] = useState('');
+  const [eventName, setEventName] = useState('');//Event Name
+  const [eventDescription, setEventDescription] = useState('');//Event Description
   const apiUrl = 'http://localhost:1337/api/events';
-  const [editEventId, setEditEventId] = useState(null);
-  const [newEventName, setNewEventName] = useState('');
+  const [editEventId, setEditEventId] = useState(null);//Edit Event
+  const [newEventName, setNewEventName] = useState('');//Update Event Name
+  const [user, setUser] = useState('');//User Display
+  
+  const [showModal, setShowModal] = useState(false);
+  const [entryData, setEntryData] = useState([]);
+
+
+
+  // Show Entries Modal
+  const handleShowEntries = async (eventId) => {
+    try {
+      const response = await axios.get(`http://localhost:1337/api/entries?filters[event]=${eventId}`, {
+        headers: {
+          Authorization: `Bearer ${axiosConfig.jwt}`,
+        },
+      });
+      setEntryData(response.data.data);
+      setShowModal(true);
+    } catch (error) {
+      console.error('Error fetching event entries:', error);
+      setError('Failed to fetch event entries.');
+    }
+  };
+  
+
+
+
+
+  // User Account  : Name
+  const myusername = async () => {
+    const result = await axios.get('http://localhost:1337/api/users/me?populate=role');
+    if (result.data.role) {
+      setUser(result.data.username)
+    }
+  }
+  useEffect(() => {
+    myusername()
+  }, [])
 
 
   useEffect(() => {
@@ -21,7 +59,7 @@ const StaffPage = () => {
   }, []);
 
   const handleLogout = () => {
-    window.location.href = 'http://localhost:3000/';
+    window.location.href = '/';
   };
 
   //fetch events
@@ -57,6 +95,8 @@ const StaffPage = () => {
     setNewEventName(event.attributes.name);
   };
 
+
+
   // Update an event
   const updateEvent = async () => {
     if (!newEventName.trim()) {
@@ -65,7 +105,7 @@ const StaffPage = () => {
     }
 
     try {
-      await axios.put(`${apiUrl}/${editEventId}`, { data: { name: newEventName, description: eventDescription } }, {
+      await axios.put(`${apiUrl}/${editEventId}`, { data: { name: newEventName } }, {
         headers: { Authorization: `Bearer ${axiosConfig.jwt}` },
       });
       fetchEvents();
@@ -113,7 +153,6 @@ const StaffPage = () => {
                 emo: entry.emo,
               }
             }));
-
             console.log('Transformed data:', transformedData);
 
             // Upload the transformed data
@@ -140,7 +179,7 @@ const StaffPage = () => {
 
   return (
     <div className="staff-page">
-      <h1>Welcome to the Staff Page</h1>
+      <h1>Welcome {user.toUpperCase()} to the Staff Page</h1>
       {error && <div className="error-message">{error}</div>}
 
       {/* Event Creation Form */}
@@ -174,6 +213,7 @@ const StaffPage = () => {
               <div className="event-actions">
                 <Button onClick={() => showEditForm(event)}>Edit</Button>
                 <Button variant="danger" onClick={() => deleteEvent(event.id)}>Delete</Button>
+                <Button variant="info" onClick={() => handleShowEntries(event.id)}>Show</Button>
               </div>
             </div>
           ))
@@ -182,7 +222,6 @@ const StaffPage = () => {
         )}
         <button className="logout-button" onClick={handleLogout}>Logout</button>
       </div>
-
       {/* Popup Edit Form */}
       {editEventId && (
         <div className="edit-popup">
@@ -191,6 +230,52 @@ const StaffPage = () => {
           <button onClick={() => setEditEventId(null)}>Cancel</button>
         </div>
       )}
+      {showModal && (
+  <div className="modal show" style={{ display: "block" }} role="dialog">
+    <div className="modal-dialog" role="document">
+      <div className="modal-content">
+        <div className="modal-header">
+          <h5 className="modal-title">Event Entries</h5>
+          <button type="button" className="close" data-dismiss="modal" aria-label="Close" onClick={() => setShowModal(false)}>
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div className="modal-body">
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Score</th>
+                <th>Rating</th>
+                <th>Emotion</th>
+                <th>Seen Date</th>
+                <th>Submit Date</th>
+                <th>Seen ?</th>
+              </tr>
+            </thead>
+            <tbody>
+              {entryData.map((entry, index) => (
+                <tr key={index}>
+                  <td>{entry.attributes.owner}</td>
+                  <td>{entry.attributes.result}</td>
+                  <td>{entry.attributes.rating}</td>
+                  <td>{entry.attributes.emotion}</td>
+                  <td>{entry.attributes.seen_DateTime}</td>
+                  <td>{entry.attributes.act_DateTime}</td>
+                  <td>{entry.attributes.seen }</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="modal-footer">
+          <button type="button" className="btn btn-secondary" data-dismiss="modal" onClick={() => setShowModal(false)}>Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
     </div>
   );
 };

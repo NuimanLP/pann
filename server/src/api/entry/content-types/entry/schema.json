@@ -38,6 +38,10 @@
     },
     "emotion": {
       "type": "string"
+    },
+    "seen": {
+      "type": "string",
+      "default": "False"
     }
   }
 }

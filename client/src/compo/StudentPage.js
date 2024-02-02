@@ -7,15 +7,29 @@ const StudentPage = () => {
   const [events, setEvents] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [error, setError] = useState('');
+  const [user, setUser] = useState('');
 
-  // Initialize state from localStorage if it exists or set default empty object
-  const [viewedEvents, setViewedEvents] = useState(JSON.parse(sessionStorage.getItem('viewedEvents')) || {});
+
+
+
+  // Keep track of viewed and submitted events
   const [submittedEvents, setSubmittedEvents] = useState(JSON.parse(localStorage.getItem('submittedEvents')) || {});
+
+
+  const myusername = async () => {
+    const result = await axios.get('http://localhost:1337/api/users/me?populate=role');
+    if (result.data.role) {
+      setUser(result.data.username)
+    }
+  }
+  useEffect(() => {
+    myusername()
+  }, [])
 
   useEffect(() => {
     axios.get('http://localhost:1337/api/events/studentRelated', {
       headers: {
-        Authorization: `Bearer ${axiosConfig.jwt}`, // Authorization header
+        Authorization: `Bearer ${axiosConfig.jwt}`,
       },
     })
       .then(response => {
@@ -31,37 +45,33 @@ const StudentPage = () => {
       });
   }, []);
 
-  useEffect(() => {
-    sessionStorage.setItem('viewedEvents', JSON.stringify(viewedEvents));
-  }, [viewedEvents]);
 
   useEffect(() => {
-    sessionStorage.setItem('submittedEvents', JSON.stringify(submittedEvents));
+    localStorage.setItem('submittedEvents', JSON.stringify(submittedEvents));
   }, [submittedEvents]);
 
-  const handleView = (id) => {
-    setTimeout(() => {
-      setViewedEvents(prevState => ({ ...prevState, [id]: true }));
-    }, 3000); // Mark as viewed after 3 seconds
-  };
-
   const handleLogout = () => {
-    window.location.href = 'http://localhost:3000/';
+    window.location.href = '/';
   };
 
   const handleSubmit = async (id) => {
     try {
-      // Example POST request to submit an event
-      await axios.post(`http://localhost:1337/api/events/submit/${id}`, {}, {
+      console.log("Submitting event with id:", id);
+
+      const response = await axios.post(`http://localhost:1337/api/entries/submit/${id}`, {}, {
         headers: {
-          Authorization: `Bearer ${axiosConfig.jwt}`, // Authorization header
+          Authorization: `Bearer ${axiosConfig.jwt}`,
         },
       });
+
+      console.log('Submission response:', response);
       setSubmittedEvents(prevState => ({ ...prevState, [id]: true }));
     } catch (error) {
       console.error('Error submitting event:', error);
+      console.log('Error response:', error.response);
     }
   };
+
   // Filter events based on search term
   const filteredEvents = searchTerm
     ? events.filter(event =>
@@ -70,11 +80,49 @@ const StudentPage = () => {
     )
     : events;
 
+  // Mark all relevant entries as seen
+  const markAllEntriesAsSeen = async () => {
+    try {
+      const response = await axios.get('http://localhost:1337/api/events/studentRelated', {
+        headers: {
+          Authorization: `Bearer ${axiosConfig.jwt}`,
+        },
+      });
+      const events = response.data.data;
+
+      for (let event of events) {
+        if (event.attributes.entries && event.attributes.entries.data.length > 0) {
+          // Loop through each entry in the event
+          for (let entry of event.attributes.entries.data) {
+            // Check if the entry has a result before marking as seen
+            if (entry.attributes.result) {
+              await axios.post(`http://localhost:1337/api/entries/${entry.id}/seen`, {}, {
+                headers: {
+                  Authorization: `Bearer ${axiosConfig.jwt}`,
+                },
+              });
+            }
+          }
+        }
+      }
+      console.log('All relevant entries marked as seen');
+    } catch (error) {
+      console.error('Error marking entries as seen:', error);
+    }
+  };
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      markAllEntriesAsSeen();
+    }, 3000); // Delay marking entries as seen by 3 seconds
+    return () => clearTimeout(timeoutId);
+  }, []);
+
 
 
   return (
     <div className="student-page">
-      <h1>Welcome to the Student Page</h1>
+      <h1>Welcome {user.toUpperCase()} to the Student Page</h1>
       <input
         type="text"
         placeholder="Search events..."
@@ -92,15 +140,15 @@ const StudentPage = () => {
               <p>{event.attributes.description}</p>
               {event.attributes.entries.data.map(entry => (
                 <div key={entry.id}>
-                  <span>Score: {entry.attributes.result}</span>
+                  <span>Score: {entry.attributes.result}</span><br />
+                  <span>Emotion: {entry.attributes.rating}</span><br />
+                  <span>Comment: {entry.attributes.emotion}</span><br />
                 </div>
+
               ))}
               <p>Created at: {new Date(event.attributes.dateTime).toLocaleString()}</p>
               <button onClick={() => handleSubmit(event.id)}>
                 {submittedEvents[event.id] ? '✅' : 'Submit'}
-              </button>
-              <button onClick={() => handleView(event.id)} disabled={viewedEvents[event.id]}>
-                {viewedEvents[event.id] ? '👌' : 'View'}
               </button>
             </div>
           ))
