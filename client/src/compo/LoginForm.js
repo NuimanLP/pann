@@ -34,10 +34,16 @@ const LoginForm = () => {
 
             const token = response.data.jwt;
             axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-
             console.log('Fetching user details...');
             const userResponse = await axios.get('http://localhost:1337/api/users/me?populate=role');
             console.log('User response:', userResponse);
+
+
+            
+            //Session Storage
+            sessionStorage.setItem('jwt', token);
+            sessionStorage.setItem('username', userResponse.data.username);
+            sessionStorage.setItem('role', userResponse.data.role.name);
 
             if (userResponse.data.role.name === 'Student') {
                 navigate('/student');

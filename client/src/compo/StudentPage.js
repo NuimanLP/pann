@@ -51,7 +51,7 @@ const StudentPage = () => {
   }, [submittedEvents]);
 
   const handleLogout = () => {
-    window.location.href = '/';
+    window.location.href = 'http://localhost:3000/';
   };
 
   const handleSubmit = async (id) => {

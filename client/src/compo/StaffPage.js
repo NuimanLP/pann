@@ -16,7 +16,7 @@ const StaffPage = () => {
   const [editEventId, setEditEventId] = useState(null);//Edit Event
   const [newEventName, setNewEventName] = useState('');//Update Event Name
   const [user, setUser] = useState('');//User Display
-  
+
   const [showModal, setShowModal] = useState(false);
   const [entryData, setEntryData] = useState([]);
 
@@ -25,7 +25,7 @@ const StaffPage = () => {
   // Show Entries Modal
   const handleShowEntries = async (eventId) => {
     try {
-      const response = await axios.get(`http://localhost:1337/api/entries?filters[event]=${eventId}`, {
+      const response = await axios.get(`http://localhost:1337/api/entries?populate=*`, {
         headers: {
           Authorization: `Bearer ${axiosConfig.jwt}`,
         },
@@ -37,7 +37,7 @@ const StaffPage = () => {
       setError('Failed to fetch event entries.');
     }
   };
-  
+
 
 
 
@@ -230,51 +230,57 @@ const StaffPage = () => {
           <button onClick={() => setEditEventId(null)}>Cancel</button>
         </div>
       )}
+
+      {/* Show entry modal table */}
       {showModal && (
-  <div className="modal show" style={{ display: "block" }} role="dialog">
-    <div className="modal-dialog" role="document">
-      <div className="modal-content">
-        <div className="modal-header">
-          <h5 className="modal-title">Event Entries</h5>
-          <button type="button" className="close" data-dismiss="modal" aria-label="Close" onClick={() => setShowModal(false)}>
-            <span aria-hidden="true">&times;</span>
-          </button>
+        <div className="modal show" style={{ display: "block" }} role="dialog">
+          <div className="modal-dialog modal-lg"> {/* Use modal-lg for a larger modal */}
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Event Entries</h5>
+                <button type="button" className="close" data-dismiss="modal" aria-label="Close" onClick={() => setShowModal(false)}>
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div className="modal-body">
+                {/* Use table-responsive to make the table scroll horizontally on small devices */}
+                <div className="table-responsive">
+                  <table className="table">
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Score</th>
+                        <th>Rating</th>
+                        <th>Emotion</th>
+                        <th>Seen Date</th>
+                        <th>Submit Date</th>
+                        <th>Seen?</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {entryData.map((entry, index) => (
+                        <tr key={index}>
+                          <td>{entry.attributes.owner.data.attributes.username}</td>
+                          <td>{entry.attributes.result}</td>
+                          <td>{entry.attributes.rating}</td>
+                          <td>{entry.attributes.emotion}</td>
+                          <td>{entry.attributes.seen_DateTime}</td>
+                          <td>{entry.attributes.act_DateTime}</td>
+                          <td>{entry.attributes.seen}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" data-dismiss="modal" onClick={() => setShowModal(false)}>Close</button>
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="modal-body">
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Score</th>
-                <th>Rating</th>
-                <th>Emotion</th>
-                <th>Seen Date</th>
-                <th>Submit Date</th>
-                <th>Seen ?</th>
-              </tr>
-            </thead>
-            <tbody>
-              {entryData.map((entry, index) => (
-                <tr key={index}>
-                  <td>{entry.attributes.owner}</td>
-                  <td>{entry.attributes.result}</td>
-                  <td>{entry.attributes.rating}</td>
-                  <td>{entry.attributes.emotion}</td>
-                  <td>{entry.attributes.seen_DateTime}</td>
-                  <td>{entry.attributes.act_DateTime}</td>
-                  <td>{entry.attributes.seen }</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <div className="modal-footer">
-          <button type="button" className="btn btn-secondary" data-dismiss="modal" onClick={() => setShowModal(false)}>Close</button>
-        </div>
-      </div>
-    </div>
-  </div>
-)}
+      )}
+
 
     </div>
   );

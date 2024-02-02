@@ -83,6 +83,31 @@ button:hover {
   cursor: pointer;
 }
 
+.modal-content {
+  width: 90%; /* Adjust based on your needs */
+  max-width: 1200px; /* Maximum width */
+  overflow-x: auto; /* Enable horizontal scrolling for large tables */
+}
+.table-responsive {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  -ms-overflow-style: -ms-autohiding-scrollbar;
+}
+
+.table {
+  width: 100%;
+  margin-bottom: 1rem;
+  color: #212529;
+}
+
+.modal-body {
+  max-height: calc(100vh - 210px);
+  overflow-y: auto;
+}
+
 .modal.show {
   background-color: rgba(0, 0, 0, 0.5);
+  width: 100%;
 }
