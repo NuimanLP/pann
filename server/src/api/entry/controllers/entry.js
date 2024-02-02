@@ -24,6 +24,7 @@ module.exports = createCoreController('api::entry.entry', ({ strapi }) => ({
         await strapi.entityService.update("api::entry.entry", entityId, {
             data: {
                 seen: 'Seen',
+                seen_DateTime: new Date(),
             }
         });
         ctx.body = { status: "Updated", message: "Entry marked as seen" };
@@ -143,7 +144,6 @@ async find(ctx) {
               // @ts-ignore
               event: realEvent,
               result: result_entry,
-              seen_DateTime: new Date(),
               rating: rate,
               emotion: emo
             },
