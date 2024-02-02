@@ -110,11 +110,11 @@ const StaffPage = () => {
     }
 
     try {
-      await axios.put(`${apiUrl}/${editEventId}`, { data: { name: newEventName } }, {
+      await axios.put(`${apiUrl}/${editEventId}`, { data: { name: newEventName, } }, {
         headers: { Authorization: `Bearer ${jwt}` },
       });
       fetchEvents();
-      setEditEventId(null); // Reset edit state
+      setEditEventId(null); 
     } catch (error) {
       setError('Error updating event. Please try again.');
     }
