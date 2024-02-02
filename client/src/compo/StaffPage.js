@@ -21,8 +21,6 @@ const StaffPage = () => {
 
   // Retrieve JWT, user, and role from session storage
   const jwt = sessionStorage.getItem('jwt');
-  // const usersession = sessionStorage.getItem('user');
-  // const role = sessionStorage.getItem('role');
 
   axios.defaults.headers.common['Authorization'] = `Bearer ${jwt}`;
 

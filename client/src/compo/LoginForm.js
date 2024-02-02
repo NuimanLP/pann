@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Form, Button, Alert, Container, Spinner } from 'react-bootstrap';
 import axios from 'axios';
-import axiosConfig from '../axios-interceptor'; // Import axiosConfig
 import { useNavigate } from 'react-router-dom';
 import '../CSS/LoginForm.css';
 
@@ -30,7 +29,6 @@ const LoginForm = () => {
             });
 
             console.log('Login response:', response);
-            axiosConfig.jwt = response.data.jwt; //store token
 
             const token = response.data.jwt;
             axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
@@ -44,6 +42,7 @@ const LoginForm = () => {
             sessionStorage.setItem('jwt', token);
             sessionStorage.setItem('username', userResponse.data.username);
             sessionStorage.setItem('role', userResponse.data.role.name);
+
 
             if (userResponse.data.role.name === 'Student') {
                 navigate('/student');
